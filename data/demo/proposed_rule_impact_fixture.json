@@ -1,0 +1,267 @@
+{
+  "label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES",
+  "fixture_version": "1.0.0",
+  "scenarios": [
+    {
+      "scenario_id": "DEMO-IMPACT-REGULATORY",
+      "description": "Synthetic RBI-like clause mapped to a synthetic obligation; direct contradiction only.",
+      "proposed_rule": {
+        "rule_id": "DEMO-IMPACT-PROPOSED-RBI",
+        "obligation_id": "DEMO-OBL-RBI-001",
+        "rule_name": "Synthetic proposal denies a direct route",
+        "condition": {
+          "type": "comparison",
+          "field": "disbursement_route",
+          "operator": "eq",
+          "value": "direct"
+        },
+        "action": {
+          "action_type": "deny",
+          "parameters": {},
+          "message": "Synthetic scenario only"
+        },
+        "source_obligation": {
+          "label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES: DEMO-OBL-RBI-001",
+          "dataset_kind": "synthetic",
+          "document_id": "DEMO-DOC-RBI-LIKE",
+          "evidence_id": "DEMO-EVIDENCE-RBI-LIKE",
+          "source_page": "1"
+        },
+        "rule_version": "1.0.0",
+        "status": "test",
+        "created_at": "2026-01-15T10:00:00+00:00",
+        "approved_by": null,
+        "notes": "SYNTHETIC — not an actual RBI requirement."
+      },
+      "existing_rules": [
+        {
+          "rule_id": "DEMO-IMPACT-RBI-BASELINE",
+          "obligation_id": "DEMO-OBL-RBI-BASELINE",
+          "rule_name": "Synthetic RBI-like clause permits a direct route",
+          "condition": {
+            "type": "comparison",
+            "field": "disbursement_route",
+            "operator": "eq",
+            "value": "direct"
+          },
+          "action": {
+            "action_type": "allow",
+            "parameters": {},
+            "message": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES"
+          },
+          "source_obligation": {
+            "label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES: DEMO-OBL-RBI-BASELINE",
+            "dataset_kind": "synthetic",
+            "document_id": "DEMO-DOC-RBI-LIKE",
+            "evidence_id": "DEMO-EVIDENCE-RBI-LIKE",
+            "source_page": "1"
+          },
+          "rule_version": "1.0.0",
+          "status": "test",
+          "created_at": "2026-01-15T10:00:00+00:00",
+          "approved_by": null,
+          "notes": "SYNTHETIC — not an actual RBI requirement."
+        }
+      ],
+      "source_records": [
+        {
+          "obligation_id": "DEMO-OBL-RBI-BASELINE",
+          "source_category": "rbi_requirement",
+          "dataset_kind": "synthetic",
+          "source_status": "synthetic_unverified",
+          "verification_status": "unverified",
+          "source_label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES: synthetic RBI-like clause",
+          "document_id": "DEMO-DOC-RBI-LIKE",
+          "section": "Synthetic section A",
+          "paragraph": "DEMO-PARA-001",
+          "page": "1",
+          "evidence_id": "DEMO-EVIDENCE-RBI-LIKE",
+          "quote": "SYNTHETIC CLAUSE: the fictional bank may use the direct route in this test scenario."
+        }
+      ]
+    },
+    {
+      "scenario_id": "DEMO-IMPACT-BANK-POLICY",
+      "description": "Synthetic bank-policy rule with incompatible overlapping action.",
+      "proposed_rule": {
+        "rule_id": "DEMO-IMPACT-PROPOSED-POLICY",
+        "obligation_id": "DEMO-OBL-POLICY-PROPOSAL",
+        "rule_name": "Synthetic proposal requires review for personal loans",
+        "condition": {
+          "type": "comparison",
+          "field": "loan_product",
+          "operator": "eq",
+          "value": "personal"
+        },
+        "action": {
+          "action_type": "deny",
+          "parameters": {},
+          "message": "Synthetic scenario only"
+        },
+        "source_obligation": {
+          "label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES: DEMO-OBL-POLICY-PROPOSAL",
+          "dataset_kind": "synthetic"
+        },
+        "rule_version": "1.0.0",
+        "status": "test",
+        "created_at": "2026-01-15T10:00:00+00:00",
+        "approved_by": null,
+        "notes": "Synthetic demo proposal."
+      },
+      "existing_rules": [
+        {
+          "rule_id": "DEMO-IMPACT-POLICY-BASELINE",
+          "obligation_id": "DEMO-OBL-POLICY-BASELINE",
+          "rule_name": "Synthetic bank policy allows personal loans",
+          "condition": {
+            "type": "comparison",
+            "field": "loan_product",
+            "operator": "eq",
+            "value": "personal"
+          },
+          "action": {
+            "action_type": "allow",
+            "parameters": {},
+            "message": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES"
+          },
+          "source_obligation": {
+            "label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES: DEMO-OBL-POLICY-BASELINE",
+            "dataset_kind": "synthetic",
+            "document_id": "DEMO-DOC-POLICY",
+            "evidence_id": "DEMO-EVIDENCE-POLICY"
+          },
+          "rule_version": "1.0.0",
+          "status": "test",
+          "created_at": "2026-01-15T10:00:00+00:00",
+          "approved_by": null,
+          "notes": "Synthetic bank policy."
+        }
+      ],
+      "source_records": [
+        {
+          "obligation_id": "DEMO-OBL-POLICY-BASELINE",
+          "source_category": "bank_policy",
+          "dataset_kind": "synthetic",
+          "source_status": "synthetic_unverified",
+          "verification_status": "unverified",
+          "source_label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES: fictional bank policy",
+          "document_id": "DEMO-DOC-POLICY",
+          "section": "Synthetic policy section",
+          "paragraph": "DEMO-PARA-002",
+          "page": "1",
+          "evidence_id": "DEMO-EVIDENCE-POLICY",
+          "quote": "SYNTHETIC POLICY: the fictional bank permits personal loans in this test scenario."
+        }
+      ]
+    },
+    {
+      "scenario_id": "DEMO-IMPACT-CLEAN-SCOPE",
+      "description": "No conflict in a small bounded synthetic ruleset; source currency remains unresolved.",
+      "ruleset_complete": true,
+      "proposed_rule": {
+        "rule_id": "DEMO-IMPACT-PROPOSED-CLEAN",
+        "obligation_id": "DEMO-OBL-CLEAN-001",
+        "rule_name": "Synthetic proposal for business loans",
+        "condition": {
+          "type": "comparison",
+          "field": "loan_product",
+          "operator": "eq",
+          "value": "business"
+        },
+        "action": {
+          "action_type": "flag",
+          "parameters": {
+            "severity": "low"
+          },
+          "message": "Synthetic scenario only"
+        },
+        "source_obligation": {
+          "label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES: DEMO-OBL-CLEAN-001",
+          "dataset_kind": "synthetic",
+          "document_id": "DEMO-DOC-HISTORICAL",
+          "evidence_id": "DEMO-EVIDENCE-HISTORICAL",
+          "source_page": "1"
+        },
+        "rule_version": "1.0.0",
+        "status": "test",
+        "created_at": "2026-01-15T10:00:00+00:00",
+        "approved_by": null,
+        "notes": "Synthetic clean-scope scenario."
+      },
+      "existing_rules": [
+        {
+          "rule_id": "DEMO-IMPACT-EXISTING-CLEAN",
+          "obligation_id": "DEMO-OBL-EXISTING-CLEAN",
+          "rule_name": "Synthetic personal loan control",
+          "condition": {
+            "type": "comparison",
+            "field": "loan_product",
+            "operator": "eq",
+            "value": "personal"
+          },
+          "action": {
+            "action_type": "flag",
+            "parameters": {
+              "severity": "low"
+            },
+            "message": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES"
+          },
+          "source_obligation": {
+            "label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES: DEMO-OBL-EXISTING-CLEAN",
+            "dataset_kind": "synthetic"
+          },
+          "rule_version": "1.0.0",
+          "status": "test",
+          "created_at": "2026-01-15T10:00:00+00:00",
+          "approved_by": null,
+          "notes": "Synthetic bounded control."
+        }
+      ],
+      "source_records": [
+        {
+          "obligation_id": "DEMO-OBL-CLEAN-001",
+          "source_category": "rbi_requirement",
+          "dataset_kind": "synthetic",
+          "source_status": "unresolved",
+          "verification_status": "unverified",
+          "source_label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES: unresolved synthetic source",
+          "document_id": "DEMO-DOC-HISTORICAL",
+          "section": "Synthetic section B",
+          "paragraph": "DEMO-PARA-003",
+          "page": "1",
+          "evidence_id": "DEMO-EVIDENCE-HISTORICAL",
+          "quote": "SYNTHETIC CLAUSE: no current legal status is asserted."
+        }
+      ]
+    },
+    {
+      "scenario_id": "DEMO-IMPACT-AMBIGUOUS",
+      "description": "A deliberately broad synthetic condition requires review.",
+      "proposed_rule": {
+        "rule_id": "DEMO-IMPACT-PROPOSED-AMBIGUOUS",
+        "obligation_id": "DEMO-OBL-AMBIGUOUS",
+        "rule_name": "Synthetic proposal with broad condition",
+        "condition": {
+          "type": "broad",
+          "reason": "Synthetic example intentionally omits applicability limits."
+        },
+        "action": {
+          "action_type": "require_review",
+          "parameters": {},
+          "message": "Synthetic scenario only"
+        },
+        "source_obligation": {
+          "label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES: DEMO-OBL-AMBIGUOUS",
+          "dataset_kind": "synthetic"
+        },
+        "rule_version": "1.0.0",
+        "status": "test",
+        "created_at": "2026-01-15T10:00:00+00:00",
+        "approved_by": null,
+        "notes": "Synthetic ambiguity case."
+      },
+      "existing_rules": [],
+      "source_records": []
+    }
+  ]
+}

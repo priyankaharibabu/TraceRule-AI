@@ -1,0 +1,117 @@
+{
+  "label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES",
+  "demo_id": "OFFLINE-SYNTHETIC-DEMO-1",
+  "fixture_version": "1.0.0",
+  "candidate_inputs": [
+    {
+      "candidate_id": "DEMO-CAND-001",
+      "passage": "DEMO ONLY: The fictional lender reviews a simulated application when the test account is marked ready.",
+      "metadata": {
+        "document_id": "DEMO-DOC-001",
+        "evidence_id": "DEMO-EVIDENCE-001",
+        "page": 1,
+        "paragraph_reference": "DEMO-PARA-001"
+      },
+      "mock_fields": {
+        "potential_actor": "fictional lender",
+        "potential_action": "reviews a simulated application",
+        "applicability": "Synthetic demonstration only; not a real product or legal requirement.",
+        "conditions": "The test account is marked ready.",
+        "exceptions": "None specified in this synthetic fixture.",
+        "candidate_obligation": "The fictional lender reviews a simulated application when the test account is marked ready.",
+        "supporting_quote": "The fictional lender reviews a simulated application when the test account is marked ready.",
+        "uncertainty": "MOCK ONLY: no model inference or legal assessment was performed."
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "DEMO-SCENARIO-CLEAN",
+      "description": "Synthetic rule with no conflicting baseline rule; checks approval-gate readiness only.",
+      "baseline_rules": [],
+      "proposed_rule": {
+        "rule_id": "DEMO-RULE-CLEAN",
+        "obligation_id": "DEMO-OBL-CLEAN",
+        "rule_name": "Synthetic clean approval-gate example",
+        "condition": {
+          "type": "comparison",
+          "field": "loan_product",
+          "operator": "eq",
+          "value": "personal"
+        },
+        "action": {
+          "action_type": "flag",
+          "parameters": {
+            "severity": "low"
+          },
+          "message": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES"
+        },
+        "source_obligation": {
+          "label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES: DEMO-OBL-CLEAN",
+          "dataset_kind": "synthetic"
+        },
+        "rule_version": "1.0.0",
+        "status": "pending_approval",
+        "created_at": "2026-01-15T10:00:00+00:00",
+        "approved_by": null,
+        "notes": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES"
+      }
+    },
+    {
+      "scenario_id": "DEMO-SCENARIO-CONFLICT",
+      "description": "Synthetic allow/deny rules share an identical condition and must be blocked.",
+      "baseline_rules": [
+        {
+          "rule_id": "DEMO-RULE-BASELINE",
+          "obligation_id": "DEMO-OBL-BASELINE",
+          "rule_name": "Synthetic baseline allows direct route",
+          "condition": {
+            "type": "comparison",
+            "field": "disbursement_route",
+            "operator": "eq",
+            "value": "direct"
+          },
+          "action": {
+            "action_type": "allow",
+            "parameters": {},
+            "message": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES"
+          },
+          "source_obligation": {
+            "label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES: DEMO-OBL-BASELINE",
+            "dataset_kind": "synthetic"
+          },
+          "rule_version": "1.0.0",
+          "status": "test",
+          "created_at": "2026-01-15T10:00:00+00:00",
+          "approved_by": null,
+          "notes": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES"
+        }
+      ],
+      "proposed_rule": {
+        "rule_id": "DEMO-RULE-CONFLICT",
+        "obligation_id": "DEMO-OBL-CONFLICT",
+        "rule_name": "Synthetic conflicting deny rule",
+        "condition": {
+          "type": "comparison",
+          "field": "disbursement_route",
+          "operator": "eq",
+          "value": "direct"
+        },
+        "action": {
+          "action_type": "deny",
+          "parameters": {},
+          "message": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES"
+        },
+        "source_obligation": {
+          "label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES: DEMO-OBL-CONFLICT",
+          "dataset_kind": "synthetic"
+        },
+        "rule_version": "1.0.0",
+        "status": "pending_approval",
+        "created_at": "2026-01-15T10:00:00+00:00",
+        "approved_by": null,
+        "notes": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES"
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "scope_id": "OPTION-A-CB-2025-CH3",
+  "scope_label": "Option A — RBI (Commercial Banks – Credit Facilities) Directions, 2025, Chapter III only",
+  "status": "proposed_technical_scope",
+  "owner_confirmed_at": "2026-10-24",
+  "primary_document_id": "DOC-CB-2025",
+  "primary_document_status": "VERIFY_CURRENT_STATUS",
+  "chapter": "III",
+  "chapter_title": "Digital Lending Guidelines",
+  "paragraph_range_inclusive": {
+    "start": 6,
+    "end": 31
+  },
+  "evidence_boundary_check": "Phase 2 evidence_passages.csv numbered paragraphs 6 through 31",
+  "excluded_from_active_derivation": [
+    {
+      "document_id": "DOC-DL-2022",
+      "reason": "Superseded September 2022 guidelines; historical comparison only"
+    }
+  ],
+  "legal_review_before_real_mapping": [
+    {
+      "document_id": "DOC-DL-2025",
+      "reason": "Potential interaction with DOC-CB-2025 Chapter III for commercial banks not resolved"
+    }
+  ],
+  "real_rule_mapping_requirements": [
+    "obligation must appear in obligations.csv with verification_status=verified",
+    "obligation must reference evidence_id with page-level traceability",
+    "obligation document_id must be DOC-CB-2025 and paragraph within 6–31",
+    "primary document document_status must not be treated as legally current until VERIFY_CURRENT_STATUS is resolved",
+    "rule status must remain draft or test until explicit human approval workflow"
+  ],
+  "synthetic_controls_label": "SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES",
+  "verified_obligation_count_at_scope_confirmation": 0
+}

@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_version": "1.0.0",
+  "title": "TraceRule proposed-rule impact report",
+  "description": "Bounded impact assessment. A report is not an approval, activation, or universal compliance determination.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "label",
+    "proposed_rule",
+    "assessment_status",
+    "scope",
+    "findings",
+    "missing_evidence",
+    "uncertainty_warnings",
+    "validation_result",
+    "simulation_result",
+    "approval_status",
+    "activation_status"
+  ],
+  "properties": {
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scenario_id": {
+      "type": "string"
+    },
+    "scenario_description": {
+      "type": "string"
+    },
+    "proposed_rule": {
+      "type": "object",
+      "required": ["rule_id", "summary", "condition", "action"],
+      "properties": {
+        "rule_id": { "type": ["string", "null"] },
+        "summary": { "type": "string" },
+        "condition": {},
+        "action": {}
+      }
+    },
+    "assessment_status": {
+      "type": "string",
+      "enum": [
+        "invalid_proposal",
+        "conflict_detected",
+        "review_required",
+        "potential_impact",
+        "no_conflict_within_checked_scope"
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "required": ["existing_rule_count", "complete_ruleset_attested", "coverage_warning"],
+      "properties": {
+        "existing_rule_count": { "type": "integer", "minimum": 0 },
+        "complete_ruleset_attested": { "type": "boolean" },
+        "coverage_warning": { "type": "string" }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "category",
+          "severity",
+          "source_category",
+          "source_reference",
+          "proposed_condition",
+          "existing_condition",
+          "proposed_action",
+          "existing_action",
+          "explanation",
+          "recommended_next_action"
+        ],
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "exact_duplicate",
+              "possible_near_duplicate",
+              "direct_contradiction",
+              "conditional_contradiction",
+              "potential_regulatory_impact",
+              "potential_bank_policy_impact",
+              "no_conflict_detected_within_scope",
+              "insufficient_evidence",
+              "historical_or_unresolved_source",
+              "ambiguous_conditions",
+              "action_compatibility_unresolved",
+              "invalid_rule_schema"
+            ]
+          },
+          "severity": { "type": "string", "enum": ["info", "low", "medium", "high"] },
+          "existing_rule": {
+            "type": ["object", "null"],
+            "properties": {
+              "rule_id": { "type": ["string", "null"] },
+              "summary": { "type": "string" }
+            }
+          },
+          "source_category": {
+            "type": ["string", "null"],
+            "enum": ["rbi_requirement", "bank_policy", "other_rule", null]
+          },
+          "source_reference": {
+            "type": ["object", "null"]
+          },
+          "proposed_condition": {},
+          "existing_condition": {},
+          "proposed_action": {},
+          "existing_action": {},
+          "explanation": { "type": "string" },
+          "recommended_next_action": { "type": "string" },
+          "validation_errors": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "detector_evidence": { "type": "object" },
+          "overlap_established": { "type": "boolean" },
+          "requires_human_review": { "type": "boolean" }
+        }
+      }
+    },
+    "missing_evidence": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "uncertainty_warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "validation_result": {
+      "type": "object",
+      "required": ["passed", "results"],
+      "properties": {
+        "passed": { "type": "boolean" },
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["rule_id", "errors"],
+            "properties": {
+              "rule_id": { "type": "string" },
+              "errors": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "simulation_result": {
+      "type": ["object", "null"],
+      "properties": {
+        "simulation_type": { "type": "string" },
+        "case_count": { "type": "integer", "minimum": 0 },
+        "changed_outcomes": { "type": "integer", "minimum": 0 },
+        "dataset_version": { "type": "string" },
+        "seed": { "type": ["integer", "null"] }
+      }
+    },
+    "approval_status": {
+      "const": "not_performed"
+    },
+    "activation_status": {
+      "const": "inactive"
+    }
+  }
+}

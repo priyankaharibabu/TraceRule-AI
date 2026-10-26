@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TraceRule imported bank policy repository",
+  "description": "Local repository. Imported source and approval claims remain unverified until independently verified.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "policies"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "policies": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/policy" }
+    }
+  },
+  "$defs": {
+    "policy": {
+      "type": "object",
+      "required": ["policy_id", "policy_title", "policy_category", "owning_organization", "versions"],
+      "properties": {
+        "policy_id": { "type": "string", "minLength": 1 },
+        "policy_title": { "type": ["string", "null"] },
+        "policy_category": { "type": ["string", "null"] },
+        "owning_organization": { "type": ["string", "null"] },
+        "versions": { "type": "array", "items": { "$ref": "#/$defs/version" } }
+      }
+    },
+    "version": {
+      "type": "object",
+      "required": ["version", "effective_from", "effective_to", "status", "source_document_reference", "approval_details", "clauses", "provenance", "record_created_at", "record_updated_at", "import_completeness"],
+      "properties": {
+        "version": { "type": "string", "minLength": 1 },
+        "effective_from": { "type": ["string", "null"], "format": "date" },
+        "effective_to": { "type": ["string", "null"], "format": "date" },
+        "status": { "enum": ["draft", "approved", "retired"] },
+        "source_document_reference": { "type": ["string", "null"] },
+        "approval_details": { "type": "array", "items": { "$ref": "#/$defs/approval" } },
+        "clauses": { "type": "array", "items": { "$ref": "#/$defs/clause" } },
+        "provenance": { "type": "object" },
+        "record_created_at": { "type": "string", "format": "date-time" },
+        "record_updated_at": { "type": "string", "format": "date-time" },
+        "import_completeness": { "type": "object" }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "required": ["approval_reference", "approver", "approval_date", "decision", "provenance_status"],
+      "properties": {
+        "approval_reference": { "type": ["string", "null"] },
+        "approver": { "type": ["string", "null"] },
+        "approval_date": { "type": ["string", "null"], "format": "date" },
+        "decision": { "enum": ["approved", "rejected", "returned", "withdrawn", null] },
+        "provenance_status": { "type": "string" }
+      }
+    },
+    "clause": {
+      "type": "object",
+      "required": ["clause_id", "clause_title", "clause_text", "section", "paragraph", "page", "source_document_reference", "verification_status", "executable_rule_verification_status", "record_created_at", "record_updated_at"],
+      "properties": {
+        "clause_id": { "type": "string", "minLength": 1 },
+        "clause_title": { "type": ["string", "null"] },
+        "clause_text": { "type": "string", "minLength": 1 },
+        "section": { "type": ["string", "null"] },
+        "paragraph": { "type": ["string", "null"] },
+        "page": { "type": ["string", "null"] },
+        "source_document_reference": { "type": ["string", "null"] },
+        "verification_status": { "enum": ["unverified_import", "verified"] },
+        "executable_rule_definition_claim": { "type": ["object", "null"] },
+        "executable_rule_verification_status": { "enum": ["unverified_import", "verified"] },
+        "record_created_at": { "type": "string", "format": "date-time" },
+        "record_updated_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

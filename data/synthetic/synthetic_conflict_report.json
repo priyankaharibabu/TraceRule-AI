@@ -1,0 +1,295 @@
+{
+  "label": "SIMULATED INTERNAL CONTROLS \u2014 NOT ACTUAL BANK POLICIES",
+  "generated_at": "2026-10-24T11:30:07.268165+00:00",
+  "findings": [
+    {
+      "rule_ids": [
+        "SYN-RULE-001",
+        "SYN-RULE-009",
+        "SYN-RULE-010"
+      ],
+      "finding_type": "duplicate_or_near_duplicate",
+      "severity": "high",
+      "explanation": "Identical condition fingerprints across multiple rules",
+      "evidence": {
+        "fingerprint": "71cd4a8738b31fedefcd2e9ff6839dad6798b7a14b2f292e2f37d19c624449f4",
+        "count": 3,
+        "incompatible_actions": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-001",
+        "SYN-RULE-009",
+        "SYN-RULE-010"
+      ],
+      "finding_type": "identical_condition_incompatible_actions",
+      "severity": "high",
+      "explanation": "Same condition with mutually incompatible actions",
+      "evidence": {
+        "fingerprint": "71cd4a8738b31fedefcd2e9ff6839dad6798b7a14b2f292e2f37d19c624449f4"
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-001",
+        "SYN-RULE-010"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-001",
+        "SYN-RULE-012"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-005",
+        "SYN-RULE-010"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-005",
+        "SYN-RULE-011"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-005",
+        "SYN-RULE-012"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-008",
+        "SYN-RULE-010"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-008",
+        "SYN-RULE-012"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-009",
+        "SYN-RULE-010"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-009",
+        "SYN-RULE-012"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-010",
+        "SYN-RULE-015"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-010",
+        "SYN-RULE-018"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-010",
+        "SYN-RULE-020"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-011",
+        "SYN-RULE-012"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-012",
+        "SYN-RULE-015"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-012",
+        "SYN-RULE-018"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-012",
+        "SYN-RULE-020"
+      ],
+      "finding_type": "overlapping_incompatible_actions",
+      "severity": "high",
+      "explanation": "Overlapping conditions with incompatible actions",
+      "evidence": {
+        "overlap_established": true
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-013"
+      ],
+      "finding_type": "missing_or_incomplete_condition",
+      "severity": "medium",
+      "explanation": "Rule declares a missing condition",
+      "evidence": {
+        "reason": "Condition not finalized"
+      },
+      "overlap_established": false,
+      "requires_human_review": true
+    },
+    {
+      "rule_ids": [
+        "SYN-RULE-014"
+      ],
+      "finding_type": "overly_broad_applicability",
+      "severity": "medium",
+      "explanation": "Rule uses a broad applicability marker",
+      "evidence": {
+        "reason": "Applies to all products pending scoping"
+      },
+      "overlap_established": true,
+      "requires_human_review": true
+    }
+  ],
+  "summary": {
+    "duplicate_or_near_duplicate": 1,
+    "identical_condition_incompatible_actions": 1,
+    "overlapping_incompatible_actions": 16,
+    "missing_or_incomplete_condition": 1,
+    "overly_broad_applicability": 1
+  }
+}

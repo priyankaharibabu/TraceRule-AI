@@ -1,0 +1,58 @@
+.venv/
+.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.bak
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+node_modules/
+__pycache__/
+*.pem
+*.key
+*.p12
+*.pfx
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+credentials/
+service-account*.json
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+temp/
+tmp/
+
+# Local databases and backups
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+*.backup

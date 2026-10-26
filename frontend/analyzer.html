@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TraceRule AI - Real-Time Document Analyzer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .upload-zone.dragover { border-color: #3b82f6; background: #eff6ff; }
+    .fade-in { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .match-card:hover { transform: translateX(4px); border-left-color: #3b82f6; }
+    .loading-spinner { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+              <i class="fas fa-shield-halved text-xl"></i>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold">TraceRule AI</h1>
+              <p class="text-blue-200 text-xs">Real-Time Document Analyzer</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <span id="api-status" class="flex items-center gap-2 text-sm">
+              <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
+              Connecting...
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+      <!-- Upload Section -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">
+          <i class="fas fa-upload mr-2 text-blue-600"></i>Upload Regulatory Document
+        </h2>
+        
+        <div 
+          id="upload-zone"
+          class="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center cursor-pointer transition-all hover:border-blue-400 hover:bg-gray-50"
+          onclick="document.getElementById('file-input').click()"
+        >
+          <input type="file" id="file-input" class="hidden" accept=".pdf,.png,.jpg,.jpeg,.gif,.bmp,.tiff" onchange="handleFileSelect(event)">
+          
+          <div id="upload-icon">
+            <i class="fas fa-cloud-upload-alt text-5xl text-gray-300 mb-4"></i>
+            <p class="text-gray-600 font-medium">Drop your PDF or Image here</p>
+            <p class="text-gray-400 text-sm mt-1">or click to browse</p>
+          </div>
+          
+          <div id="upload-preview" class="hidden">
+            <i class="fas fa-file-pdf text-5xl text-red-500 mb-4"></i>
+            <p id="file-name" class="text-gray-900 font-medium"></p>
+            <p id="file-size" class="text-gray-400 text-sm mt-1"></p>
+          </div>
+        </div>
+
+        <div class="mt-4 flex justify-center">
+          <button 
+            id="analyze-btn"
+            onclick="analyzeDocument()"
+            disabled
+            class="px-8 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          >
+            <i class="fas fa-search"></i>
+            Analyze Document
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading" class="hidden bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
+        <i class="fas fa-circle-notch loading-spinner text-4xl text-blue-600 mb-4"></i>
+        <p class="text-gray-600 font-medium">Analyzing document...</p>
+        <p class="text-gray-400 text-sm mt-1" id="loading-status">Extracting text and searching regulatory database</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="error" class="hidden bg-red-50 rounded-2xl border border-red-200 p-6 mb-8">
+        <div class="flex items-center gap-3">
+          <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+          <div>
+            <p class="font-medium text-red-700" id="error-message">Error occurred</p>
+            <p class="text-sm text-red-500" id="error-detail"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <div id="results" class="hidden">
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <p class="text-2xl font-bold text-gray-900" id="stat-pages">0</p>
+            <p class="text-sm text-gray-500">Pages Processed</p>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <p class="text-2xl font-bold text-gray-900" id="stat-chars">0</p>
+            <p class="text-sm text-gray-500">Characters Extracted</p>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <p class="text-2xl font-bold text-blue-600" id="stat-matches">0</p>
+            <p class="text-sm text-gray-500">Regulatory Matches</p>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <p class="text-2xl font-bold text-green-600" id="stat-time">0s</p>
+            <p class="text-sm text-gray-500">Processing Time</p>
+          </div>
+        </div>
+
+        <!-- Matches -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200">
+          <div class="p-4 border-b border-gray-200">
+            <h3 class="font-semibold text-gray-900">
+              <i class="fas fa-list-check mr-2 text-blue-600"></i>Found Regulatory Content
+            </h3>
+          </div>
+          <div id="matches-list" class="divide-y divide-gray-100">
+            <!-- Matches will be inserted here -->
+          </div>
+        </div>
+
+        <!-- No Matches -->
+        <div id="no-matches" class="hidden bg-white rounded-2xl border border-gray-200 p-12 text-center">
+          <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
+          <p class="text-gray-600 font-medium">No matching regulatory content found</p>
+          <p class="text-gray-400 text-sm mt-1">Try uploading a document related to RBI regulations</p>
+        </div>
+      </div>
+
+      <!-- Offline Synthetic Demo -->
+      <section aria-labelledby="synthetic-demo-title" class="mb-8 rounded-2xl border-2 border-amber-300 bg-amber-50 p-6">
+        <p class="text-sm font-bold tracking-wide text-amber-950">SYNTHETIC — NOT ACTUAL BANK POLICIES</p>
+        <h2 id="synthetic-demo-title" class="mt-1 text-xl font-bold text-gray-900">Offline Synthetic Demo</h2>
+        <p class="mt-2 text-sm text-gray-800">
+          These deterministic examples exercise synthetic rule gates only. They are not real regulatory
+          decisions and do not establish RBI compliance.
+        </p>
+        <div class="mt-5 flex flex-wrap gap-3">
+          <button type="button" data-demo-scenario="clean" class="rounded-lg bg-blue-700 px-5 py-3 font-medium text-white hover:bg-blue-800">
+            Run Clean Scenario
+          </button>
+          <button type="button" data-demo-scenario="conflict" class="rounded-lg bg-gray-800 px-5 py-3 font-medium text-white hover:bg-gray-900">
+            Run Conflict Scenario
+          </button>
+        </div>
+        <div id="synthetic-demo-result" class="mt-5" role="status" aria-live="polite"></div>
+      </section>
+
+      <section aria-labelledby="impact-demo-title" class="mb-8 rounded-2xl border border-gray-300 bg-white p-6 shadow-sm">
+        <p class="text-sm font-bold tracking-wide text-amber-950">SYNTHETIC — NOT ACTUAL BANK POLICIES</p>
+        <h2 id="impact-demo-title" class="mt-1 text-xl font-bold text-gray-900">Check a Proposed Rule</h2>
+        <p class="mt-2 text-sm leading-6 text-gray-700">
+          This demonstration uses four fixed, fictional examples. It does not accept a real rule, and its sample
+          clauses are not actual RBI requirements or bank policies. This check does not establish RBI compliance.
+        </p>
+        <ol class="mt-4 grid gap-2 text-sm text-gray-800 sm:grid-cols-2">
+          <li><span class="font-semibold">1.</span> Choose a demonstration scenario.</li>
+          <li><span class="font-semibold">2.</span> Select <span class="font-semibold">Run check</span>.</li>
+          <li><span class="font-semibold">3.</span> Read what may be affected and the supporting sample.</li>
+          <li><span class="font-semibold">4.</span> Follow the suggested next step.</li>
+        </ol>
+        <div class="mt-5 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+          <label for="impact-scenario" class="font-medium text-gray-900">Choose an example</label>
+          <select id="impact-scenario" aria-describedby="impact-demo-help" class="w-full rounded-lg border border-gray-400 bg-white px-3 py-3 text-gray-900 sm:w-auto">
+            <option value="DEMO-IMPACT-REGULATORY">A change that disagrees with a fictional sample requirement</option>
+            <option value="DEMO-IMPACT-BANK-POLICY">A change that disagrees with a fictional bank policy</option>
+            <option value="DEMO-IMPACT-CLEAN-SCOPE">No issue found in this small sample</option>
+            <option value="DEMO-IMPACT-AMBIGUOUS">An example that needs more information</option>
+          </select>
+          <button type="button" id="run-impact-analysis" class="rounded-lg bg-blue-800 px-5 py-3 font-medium text-white hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2">
+            Run check
+          </button>
+        </div>
+        <p id="impact-demo-help" class="mt-2 text-sm text-gray-600">
+          These examples cannot be edited or used to submit a real proposed rule.
+        </p>
+        <div id="impact-analysis-result" class="mt-5" role="status" aria-live="polite">
+          <p class="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
+            Choose an example and run the check to see its findings. No rule will be approved or put into use.
+          </p>
+        </div>
+      </section>
+
+      <!-- How It Works -->
+      <div class="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+        <h3 class="font-semibold text-gray-900 mb-4">
+          <i class="fas fa-info-circle mr-2 text-blue-600"></i>How It Works
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="text-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <i class="fas fa-upload text-blue-600"></i>
+            </div>
+            <p class="font-medium text-gray-900">1. Upload Document</p>
+            <p class="text-sm text-gray-500 mt-1">Upload any PDF or image containing regulatory content</p>
+          </div>
+          <div class="text-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <i class="fas fa-magnifying-glass text-blue-600"></i>
+            </div>
+            <p class="font-medium text-gray-900">2. AI Analysis</p>
+            <p class="text-sm text-gray-500 mt-1">Our system extracts text and searches the regulatory database</p>
+          </div>
+          <div class="text-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <i class="fas fa-file-lines text-blue-600"></i>
+            </div>
+            <p class="font-medium text-gray-900">3. Get Results</p>
+            <p class="text-sm text-gray-500 mt-1">See exactly where matching regulatory content exists</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let selectedFile = null;
+    const API_BASE = window.location.port === "3000" ? "http://localhost:8000" : "http://localhost:8000";
+
+    // Check API connection on load
+    async function checkApiStatus() {
+      const statusEl = document.getElementById('api-status');
+      try {
+        const response = await fetch(`${API_BASE}/health`);
+        const data = await response.json();
+        if (data.status === 'healthy') {
+          statusEl.innerHTML = '<span class="w-2 h-2 bg-green-400 rounded-full"></span> API Connected';
+        }
+      } catch {
+        statusEl.innerHTML = '<span class="w-2 h-2 bg-red-400 rounded-full"></span> API Offline';
+      }
+    }
+    checkApiStatus();
+
+    const syntheticScenarios = {
+      clean: {
+        endpoint: `${API_BASE}/demo/synthetic/clean`,
+        scenarioId: 'DEMO-SCENARIO-CLEAN',
+        heading: 'Clean example: checks pass'
+      },
+      conflict: {
+        endpoint: `${API_BASE}/demo/synthetic/conflict`,
+        scenarioId: 'DEMO-SCENARIO-CONFLICT',
+        heading: 'Example blocked because of a conflict'
+      }
+    };
+
+    document.querySelectorAll('[data-demo-scenario]').forEach((button) => {
+      button.addEventListener('click', () => runSyntheticScenario(button.dataset.demoScenario, button));
+    });
+
+    const impactScenarios = {
+      'DEMO-IMPACT-REGULATORY': 'fictional sample requirement',
+      'DEMO-IMPACT-BANK-POLICY': 'fictional bank policy',
+      'DEMO-IMPACT-CLEAN-SCOPE': 'small sample of rules',
+      'DEMO-IMPACT-AMBIGUOUS': 'example needing more information'
+    };
+    document.getElementById('run-impact-analysis').addEventListener('click', runImpactAnalysis);
+
+    function isSyntheticDemoResponse(payload, scenarioId) {
+      return payload
+        && payload.label === 'SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES'
+        && payload.scenario_id === scenarioId
+        && payload.validation_result
+        && typeof payload.validation_result.passed === 'boolean'
+        && Array.isArray(payload.validation_result.errors)
+        && payload.conflict_findings
+        && Array.isArray(payload.conflict_findings)
+        && payload.conflict_findings.every((finding) =>
+          finding
+          && typeof finding.finding_type === 'string'
+          && typeof finding.severity === 'string'
+          && Array.isArray(finding.rule_ids)
+          && finding.rule_ids.every((ruleId) => typeof ruleId === 'string')
+          && typeof finding.requires_human_review === 'boolean'
+        )
+        && payload.simulation_summary
+        && typeof payload.simulation_summary.case_count === 'number'
+        && typeof payload.simulation_summary.simulation_type === 'string'
+        && typeof payload.simulation_summary.changed_outcomes === 'number'
+        && typeof payload.simulation_summary.dataset_version === 'string'
+        && typeof payload.simulation_summary.seed === 'number'
+        && payload.approval_gate_outcome
+        && typeof payload.approval_gate_outcome.status === 'string';
+    }
+
+    function appendDemoField(container, label, value) {
+      const field = document.createElement('div');
+      field.className = 'rounded-lg bg-gray-50 p-3';
+      const heading = document.createElement('dt');
+      heading.className = 'text-sm text-gray-600';
+      heading.textContent = label;
+      if (Array.isArray(value)) {
+        const list = document.createElement('ul');
+        list.className = 'mt-1 list-inside list-disc space-y-1 text-sm text-gray-900';
+        value.forEach((item) => {
+          const listItem = document.createElement('li');
+          listItem.textContent = item;
+          list.appendChild(listItem);
+        });
+        field.append(heading, list);
+      } else {
+        const content = document.createElement('dd');
+        content.className = 'mt-1 font-medium text-gray-900';
+        content.textContent = String(value);
+        field.append(heading, content);
+      }
+      container.appendChild(field);
+    }
+
+    function renderSyntheticDemoResult(payload, scenario) {
+      const result = document.createElement('article');
+      result.className = 'rounded-xl border border-gray-200 bg-white p-5 shadow-sm';
+      const title = document.createElement('h3');
+      title.className = 'font-semibold text-gray-900';
+      title.textContent = scenario.heading;
+      const label = document.createElement('p');
+      label.className = 'mt-1 text-sm font-bold tracking-wide text-amber-950';
+      label.textContent = 'SYNTHETIC — NOT ACTUAL BANK POLICIES';
+
+      const fields = document.createElement('dl');
+      fields.className = 'mt-4 grid gap-3 sm:grid-cols-2';
+      appendDemoField(
+        fields,
+        'Rule format check',
+        payload.validation_result.passed ? 'Passed' : 'Needs correction before it can be checked'
+      );
+      if (payload.validation_result.errors.length) {
+        appendDemoField(fields, 'Correction needed', 'The example rule details need attention before comparison.');
+      }
+      appendDemoField(
+        fields,
+        'Review checks',
+        payload.approval_gate_outcome.status === 'passed'
+          ? 'Checks passed. This does not approve a rule.'
+          : 'Blocked because checks did not pass; review is needed.'
+      );
+      appendDemoField(
+        fields,
+        'Approval',
+        payload.approval_status === 'not_performed'
+          ? 'This check did not approve a rule.'
+          : 'No rule approval is reported by this demonstration.'
+      );
+      appendDemoField(
+        fields,
+        'Use status',
+        payload.activation_status === 'inactive'
+          ? 'The rule has not been put into use.'
+          : 'This demonstration does not confirm that a rule is in use.'
+      );
+      const conflictFindings = payload.conflict_findings.length
+        ? payload.conflict_findings.map((finding) =>
+          `${{
+            duplicate_or_near_duplicate: 'These example rules may be similar.',
+            identical_condition_incompatible_actions: 'The same situation has different actions in the example rules.',
+            overlapping_incompatible_actions: 'The example rules may overlap and lead to different outcomes.',
+            ambiguous_overlap_requires_review: 'It is unclear whether these example rules apply to the same situation.',
+            missing_or_incomplete_condition: 'An example rule is missing details about when it applies.',
+            overly_broad_condition: 'An example rule may apply too broadly.'
+          }[finding.finding_type] || 'A possible issue was found in the example rules.'}${finding.requires_human_review ? ' A reviewer should check this.' : ''}`
+        )
+        : ['No issue was flagged in these example checks. This is not proof that all rules are compatible.'];
+      appendDemoField(fields, 'What may need attention', conflictFindings);
+      appendDemoField(fields, 'Example situations checked', payload.simulation_summary.case_count);
+      appendDemoField(fields, 'Situations with a different result', payload.simulation_summary.changed_outcomes);
+      result.append(label, title, fields);
+      return result;
+    }
+
+    async function runSyntheticScenario(scenarioKey, button) {
+      const scenario = syntheticScenarios[scenarioKey];
+      if (!scenario) return;
+
+      const result = document.getElementById('synthetic-demo-result');
+      const buttons = document.querySelectorAll('[data-demo-scenario]');
+      buttons.forEach((item) => { item.disabled = true; });
+      button.textContent = 'Running scenario...';
+      button.setAttribute('aria-busy', 'true');
+      result.setAttribute('role', 'status');
+      result.className = 'mt-5 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900';
+      result.textContent = `Running ${scenario.heading}...`;
+
+      try {
+        const response = await fetch(scenario.endpoint, {
+          method: 'GET',
+          headers: { Accept: 'application/json' }
+        });
+        let payload;
+        try {
+          payload = await response.json();
+        } catch {
+          throw new Error('The demo endpoint returned an invalid response.');
+        }
+        if (!response.ok) {
+          throw new Error(`The demo request failed (HTTP ${response.status}).`);
+        }
+        if (!isSyntheticDemoResponse(payload, scenario.scenarioId)) {
+          throw new Error('The demo endpoint returned an unexpected response.');
+        }
+        result.className = 'mt-5';
+        result.setAttribute('role', 'status');
+        result.replaceChildren(renderSyntheticDemoResult(payload, scenario));
+      } catch (error) {
+        result.className = 'mt-5 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-900';
+        result.textContent = error instanceof TypeError
+          ? 'Cannot reach the local TraceRule backend. Check that it is running and try again.'
+          : error.message;
+        result.setAttribute('role', 'alert');
+      } finally {
+        buttons.forEach((item) => { item.disabled = false; });
+        button.textContent = scenarioKey === 'clean' ? 'Run Clean Scenario' : 'Run Conflict Scenario';
+        button.removeAttribute('aria-busy');
+      }
+    }
+
+    const impactFindingLabels = {
+      exact_duplicate: 'This rule may already exist',
+      possible_near_duplicate: 'A similar rule may already exist',
+      direct_contradiction: 'These rules may disagree',
+      conditional_contradiction: 'These rules may disagree in certain situations',
+      potential_regulatory_impact: 'This change may affect a sample requirement',
+      potential_bank_policy_impact: 'This change may affect an existing sample policy',
+      no_conflict_detected_within_scope: 'No issue found in the rules checked',
+      insufficient_evidence: 'Some required information is missing',
+      historical_or_unresolved_source: 'We could not confirm whether this source is current',
+      ambiguous_conditions: 'We need more information to compare these rules',
+      action_compatibility_unresolved: 'A reviewer needs to check how these rules work together',
+      invalid_rule_schema: 'This rule needs correction before it can be checked'
+    };
+
+    const impactAssessmentLabels = {
+      invalid_proposal: 'This rule needs correction before it can be checked.',
+      conflict_detected: 'The proposed change may disagree with an existing rule.',
+      review_required: 'More information or review is needed before drawing a conclusion.',
+      potential_impact: 'This change may affect an existing requirement or policy.',
+      no_conflict_within_checked_scope: 'No issue was found in the rules checked.'
+    };
+
+    function readableValue(value) {
+      if (Array.isArray(value)) return value.map(readableValue).join(', ');
+      if (value && typeof value === 'object') return 'the details shown in this example';
+      return String(value);
+    }
+
+    function describeCondition(condition) {
+      if (!condition || condition.type !== 'comparison') {
+        return 'The example does not clearly limit when this rule applies.';
+      }
+      const field = String(condition.field || 'the selected item').replaceAll('_', ' ');
+      const operators = {
+        eq: 'is',
+        ne: 'is not',
+        gt: 'is greater than',
+        gte: 'is at least',
+        lt: 'is less than',
+        lte: 'is at most',
+        in: 'is one of',
+        not_in: 'is not one of'
+      };
+      const operator = operators[condition.operator];
+      if (!operator || condition.value === undefined) {
+        return 'The example does not clearly limit when this rule applies.';
+      }
+      return `Applies when ${field} ${operator} “${readableValue(condition.value)}”.`;
+    }
+
+    function describeAction(action, subject = 'The proposed rule') {
+      const actionLabels = {
+        allow: 'allow the action',
+        deny: 'decline the action',
+        flag: 'flag the case for attention',
+        require_review: 'send the case for review'
+      };
+      const actionLabel = actionLabels[action && action.action_type];
+      return actionLabel
+        ? `${subject} would ${actionLabel}.`
+        : 'The proposed rule action needs a reviewer to explain it.';
+    }
+
+    function friendlyRuleSummary(summary) {
+      return String(summary || 'Existing example rule')
+        .replace(/^Synthetic RBI-like clause/i, 'Fictional sample clause')
+        .replace(/^Synthetic bank policy/i, 'Fictional sample bank policy')
+        .replace(/^Synthetic proposal with broad condition/i, 'Example with an unclear condition')
+        .replace(/^Synthetic proposal/i, 'Proposed change')
+        .replace(/^Synthetic personal loan control/i, 'Example personal-loan control');
+    }
+
+    function explainFinding(finding) {
+      const explanations = {
+        exact_duplicate: 'The conditions and action settings match an existing example rule. Check whether a separate rule is needed.',
+        possible_near_duplicate: 'Both rules use the same field, comparison, and action but have different values. They may be related, but this check cannot confirm they mean the same thing.',
+        direct_contradiction: 'Both rules apply to the same situation, but their actions differ. A reviewer should resolve this before any real use.',
+        conditional_contradiction: 'The rules may apply to some of the same situations, but their conditions differ. A reviewer should confirm when each rule applies.',
+        potential_regulatory_impact: 'The change may affect the linked fictional requirement. This is a sample only, not a legal or compliance conclusion.',
+        potential_bank_policy_impact: 'The change may affect the linked fictional bank policy. This is a sample only, not a decision about an actual bank policy.',
+        no_conflict_detected_within_scope: 'No issue was found among the small set of example rules checked. Other rules or sources may change the result.',
+        insufficient_evidence: 'The information needed to link this rule to a supporting source is not available in this example.',
+        historical_or_unresolved_source: 'The example does not confirm that this source is current or applies today.',
+        ambiguous_conditions: 'The rule does not explain clearly enough when it applies, so the examples cannot reliably compare it.',
+        action_compatibility_unresolved: 'This check cannot tell whether the two actions can work together. A reviewer should examine them.',
+        invalid_rule_schema: 'The rule details do not pass the required checks, so no reliable comparison can be made.'
+      };
+      return explanations[finding.category] || 'This example needs review before its impact can be understood.';
+    }
+
+    function nextActionForFinding(finding) {
+      const actions = {
+        exact_duplicate: 'Ask the rule owner whether the existing rule already covers this change.',
+        possible_near_duplicate: 'Ask the rule owner to compare the rules and confirm whether both are needed.',
+        direct_contradiction: 'Ask an authorized reviewer to resolve the difference before considering any real change.',
+        conditional_contradiction: 'Clarify when each rule should apply, then ask an authorized reviewer to resolve the overlap.',
+        potential_regulatory_impact: 'Review the fictional sample only as a demonstration; verify the real source and applicability with an authorized reviewer.',
+        potential_bank_policy_impact: 'Compare the real bank policy with the proposed change through the bank’s authorized review process.',
+        no_conflict_detected_within_scope: 'Confirm that all relevant rules and sources were checked; this example does not establish compliance.',
+        insufficient_evidence: 'Provide or identify the missing supporting document through the approved review process.',
+        historical_or_unresolved_source: 'Ask an authorized reviewer to confirm whether the source is current and applies.',
+        ambiguous_conditions: 'Clarify the situations in which the proposed rule should apply, then run the check again.',
+        action_compatibility_unresolved: 'Ask an authorized reviewer to check whether the rule actions can work together.',
+        invalid_rule_schema: 'Correct the rule details before asking for another review.'
+      };
+      return actions[finding.category] || 'Ask an authorized reviewer to assess this example.';
+    }
+
+    function sourceCategoryLabel(category) {
+      const labels = {
+        rbi_requirement: 'Fictional RBI requirement example',
+        bank_policy: 'Fictional bank policy',
+        other_rule: 'Other example rule'
+      };
+      return labels[category] || 'Example source';
+    }
+
+    function sourceStatusLabel(source) {
+      if (source.dataset_kind === 'synthetic') return 'Fictional demonstration source — not verified';
+      if (source.source_status === 'verified' && source.verification_status === 'verified') {
+        return 'Verified in stored records';
+      }
+      if (source.source_status === 'historical') return 'Historical source — it may no longer apply';
+      if (source.source_status === 'unresolved') return 'Current status could not be confirmed';
+      return 'Not verified';
+    }
+
+    function humanizeLimitation(message) {
+      const text = String(message || '').toLowerCase();
+      if (text.includes('no mapped source record') || text.includes('no exact supporting evidence')) {
+        return 'A supporting source document and passage could not be confirmed.';
+      }
+      if (text.includes('not a verified obligation')) {
+        return 'The linked item has not been confirmed as a verified requirement.';
+      }
+      if (text.includes('historical')) return 'The source may be historical and may no longer apply.';
+      if (text.includes('unresolved')) return 'The source’s current status could not be confirmed.';
+      if (text.includes('source status')) return 'The source’s current status and applicability have not been confirmed.';
+      return 'Some supporting information is incomplete or needs an authorized reviewer to confirm it.';
+    }
+
+    function addImpactSection(article, headingText, content) {
+      const section = document.createElement('section');
+      section.className = 'mt-4 rounded-lg border border-gray-200 bg-white p-4';
+      const heading = document.createElement('h4');
+      heading.className = 'font-semibold text-gray-900';
+      heading.textContent = headingText;
+      section.appendChild(heading);
+      if (typeof content === 'string') {
+        const paragraph = document.createElement('p');
+        paragraph.className = 'mt-2 text-sm leading-6 text-gray-700';
+        paragraph.textContent = content;
+        section.appendChild(paragraph);
+      } else if (content) {
+        section.appendChild(content);
+      }
+      article.appendChild(section);
+      return section;
+    }
+
+    function renderImpactReport(report) {
+      const article = document.createElement('article');
+      article.className = 'rounded-xl border border-gray-300 bg-gray-50 p-5 shadow-sm';
+      const label = document.createElement('p');
+      label.className = 'text-sm font-bold tracking-wide text-amber-950';
+      label.textContent = 'SYNTHETIC — NOT ACTUAL BANK POLICIES';
+      const title = document.createElement('h3');
+      title.className = 'mt-1 font-semibold text-gray-900';
+      title.textContent = 'Example result';
+      article.append(label, title);
+
+      const proposedSummary = document.createElement('p');
+      proposedSummary.className = 'mt-3 text-sm font-medium text-gray-800';
+      proposedSummary.textContent = friendlyRuleSummary(report.proposed_rule.summary);
+      const proposedDetails = document.createElement('ul');
+      proposedDetails.className = 'mt-2 list-inside list-disc space-y-1 text-sm leading-6 text-gray-700';
+      [describeCondition(report.proposed_rule.condition), describeAction(report.proposed_rule.action)]
+        .forEach((text) => {
+          const item = document.createElement('li');
+          item.textContent = text;
+          proposedDetails.appendChild(item);
+        });
+      const proposedContent = document.createElement('div');
+      proposedContent.append(proposedSummary, proposedDetails);
+      addImpactSection(article, 'Your proposed change', proposedContent);
+
+      const resultPanel = document.createElement('div');
+      resultPanel.className = 'mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4';
+      const resultHeading = document.createElement('h4');
+      resultHeading.className = 'font-semibold text-gray-900';
+      resultHeading.textContent = 'What we found';
+      const resultText = document.createElement('p');
+      resultText.className = 'mt-2 text-sm font-medium leading-6 text-gray-900';
+      resultText.textContent = impactAssessmentLabels[report.assessment_status]
+        || 'This example needs review before a conclusion can be drawn.';
+      resultPanel.append(resultHeading, resultText);
+      if (report.findings.some((finding) => finding.category === 'no_conflict_detected_within_scope')) {
+        const scopeText = document.createElement('p');
+        scopeText.className = 'mt-2 text-sm leading-6 text-gray-800';
+        scopeText.textContent = 'Within the small set of example rules checked, no issue was found. This does not mean every relevant rule or source was checked.';
+        resultPanel.appendChild(scopeText);
+      }
+      article.appendChild(resultPanel);
+
+      const affectedContent = document.createElement('div');
+      affectedContent.className = 'mt-3 space-y-3';
+      const actionableFindings = report.findings.filter(
+        (finding) => finding.category !== 'no_conflict_detected_within_scope'
+      );
+      if (!actionableFindings.length) {
+        const empty = document.createElement('p');
+        empty.className = 'mt-2 text-sm text-gray-700';
+        empty.textContent = 'No existing example rule was identified as affected in this check.';
+        affectedContent.appendChild(empty);
+      }
+      actionableFindings.forEach((finding) => {
+        const card = document.createElement('div');
+        card.className = 'rounded-lg border border-gray-200 bg-gray-50 p-3';
+        const heading = document.createElement('h5');
+        heading.className = 'font-medium text-gray-900';
+        heading.textContent = impactFindingLabels[finding.category] || 'This example needs review';
+        card.appendChild(heading);
+        if (finding.existing_rule) {
+          const rule = document.createElement('p');
+          rule.className = 'mt-2 text-sm text-gray-800';
+          rule.textContent = `Existing example: ${friendlyRuleSummary(finding.existing_rule.summary)}`;
+          card.appendChild(rule);
+          const existingBehavior = document.createElement('p');
+          existingBehavior.className = 'mt-1 text-sm text-gray-700';
+          existingBehavior.textContent = `${describeCondition(finding.existing_condition)} ${describeAction(finding.existing_action, 'The existing example rule')}`;
+          card.appendChild(existingBehavior);
+        } else if (finding.source_category) {
+          const sourceType = document.createElement('p');
+          sourceType.className = 'mt-2 text-sm text-gray-700';
+          sourceType.textContent = `Could affect: ${sourceCategoryLabel(finding.source_category)}.`;
+          card.appendChild(sourceType);
+        }
+        const explanation = document.createElement('p');
+        explanation.className = 'mt-2 text-sm leading-6 text-gray-700';
+        explanation.textContent = explainFinding(finding);
+        card.appendChild(explanation);
+        affectedContent.appendChild(card);
+      });
+      addImpactSection(article, 'What may be affected', affectedContent);
+
+      const sourceContent = document.createElement('div');
+      sourceContent.className = 'mt-3 space-y-3';
+      const sourceFindings = [...new Map(
+        report.findings
+          .filter((finding) => finding.source_reference)
+          .map((finding) => {
+            const source = finding.source_reference;
+            const key = [
+              finding.source_category,
+              source.document_id,
+              source.section,
+              source.paragraph,
+              source.page,
+              source.quote
+            ].join('|');
+            return [key, finding];
+          })
+      ).values()];
+      if (!sourceFindings.length) {
+        const noSource = document.createElement('p');
+        noSource.className = 'mt-2 text-sm text-gray-700';
+        noSource.textContent = 'No supporting source document was provided for this example.';
+        sourceContent.appendChild(noSource);
+      }
+      sourceFindings.forEach((finding) => {
+        const source = finding.source_reference;
+        const card = document.createElement('div');
+        card.className = 'rounded-lg border border-gray-200 bg-gray-50 p-3';
+        const sourceTitle = document.createElement('h5');
+        sourceTitle.className = 'font-medium text-gray-900';
+        sourceTitle.textContent = sourceCategoryLabel(finding.source_category);
+        const status = document.createElement('p');
+        status.className = 'mt-1 text-sm font-medium text-amber-900';
+        status.textContent = sourceStatusLabel(source);
+        card.append(sourceTitle, status);
+        const reference = [
+          source.document_id && `Synthetic sample reference: ${source.document_id}`,
+          source.section && `Section: ${source.section}`,
+          source.paragraph && `Paragraph reference: ${source.paragraph}`,
+          source.page && `Page: ${source.page}`
+        ].filter(Boolean);
+        if (reference.length) {
+          const referenceText = document.createElement('p');
+          referenceText.className = 'mt-2 text-sm text-gray-700';
+          referenceText.textContent = reference.join(' · ');
+          card.appendChild(referenceText);
+        }
+        if (source.quote) {
+          const quoteLabel = document.createElement('p');
+          quoteLabel.className = 'mt-3 text-xs font-semibold uppercase tracking-wide text-gray-600';
+          quoteLabel.textContent = 'Supporting text from the fictional example — not an actual RBI clause or bank policy';
+          const quote = document.createElement('blockquote');
+          quote.className = 'mt-1 border-l-4 border-gray-300 pl-3 text-sm leading-6 text-gray-800';
+          quote.textContent = source.quote;
+          card.append(quoteLabel, quote);
+        }
+        sourceContent.appendChild(card);
+      });
+      addImpactSection(article, 'Source and supporting text', sourceContent);
+
+      const nextSteps = [...new Set(actionableFindings.map(nextActionForFinding))];
+      if (!nextSteps.length) {
+        nextSteps.push('Confirm that all relevant rules and sources were included, then ask an authorized reviewer to assess any real change.');
+      }
+      const nextContent = document.createElement('ul');
+      nextContent.className = 'mt-2 list-inside list-disc space-y-2 text-sm leading-6 text-gray-700';
+      nextSteps.forEach((action) => {
+        const item = document.createElement('li');
+        item.textContent = action;
+        nextContent.appendChild(item);
+      });
+      addImpactSection(article, 'What to do next', nextContent);
+
+      const limitation = document.createElement('div');
+      limitation.className = 'mt-4 rounded-lg border border-amber-300 bg-amber-50 p-4';
+      const limitationHeading = document.createElement('h4');
+      limitationHeading.className = 'font-semibold text-gray-900';
+      limitationHeading.textContent = 'What this result does not mean';
+      const limitationText = document.createElement('p');
+      limitationText.className = 'mt-2 text-sm leading-6 text-gray-800';
+      limitationText.textContent = `This fictional demonstration is not a real regulatory or financial decision. It does not establish RBI compliance, approve a rule, or put a rule into use. The check covers only ${report.scope.existing_rule_count} existing example rule${report.scope.existing_rule_count === 1 ? '' : 's'} and may not include everything relevant to a real decision.`;
+      limitation.append(limitationHeading, limitationText);
+      article.appendChild(limitation);
+
+      const limitations = [
+        ...report.missing_evidence.map(humanizeLimitation),
+        ...report.uncertainty_warnings.map(humanizeLimitation)
+      ];
+      if (limitations.length) {
+        const limitationList = document.createElement('ul');
+        limitationList.className = 'mt-2 list-inside list-disc space-y-1 text-sm text-gray-800';
+        [...new Set(limitations)].forEach((message) => {
+          const item = document.createElement('li');
+          item.textContent = message;
+          limitationList.appendChild(item);
+        });
+        const evidenceSection = addImpactSection(article, 'Information still to confirm', limitationList);
+        evidenceSection.classList.add('border-amber-200', 'bg-amber-50');
+      }
+
+      const technicalDetails = document.createElement('details');
+      technicalDetails.className = 'mt-4 rounded-lg border border-gray-200 bg-white p-4';
+      const technicalSummary = document.createElement('summary');
+      technicalSummary.className = 'cursor-pointer font-medium text-gray-800';
+      technicalSummary.textContent = 'Additional check details (optional)';
+      const technicalList = document.createElement('dl');
+      technicalList.className = 'mt-3 grid gap-2 text-sm text-gray-700 sm:grid-cols-2';
+      appendDemoField(
+        technicalList,
+        'Rule format check',
+        report.validation_result.passed ? 'Passed' : 'Needs correction'
+      );
+      if (!report.validation_result.passed) {
+        appendDemoField(
+          technicalList,
+          'Correction details',
+          (report.validation_result.results || []).flatMap((item) => item.errors || [])
+        );
+      }
+      appendDemoField(
+        technicalList,
+        'Example cases tested',
+        report.simulation_result ? report.simulation_result.case_count : 'Not run because the rule needs correction'
+      );
+      if (report.simulation_result) {
+        appendDemoField(technicalList, 'Cases with a different outcome', report.simulation_result.changed_outcomes);
+      }
+      technicalDetails.append(technicalSummary, technicalList);
+      article.appendChild(technicalDetails);
+      return article;
+    }
+
+    async function runImpactAnalysis() {
+      const scenarioSelect = document.getElementById('impact-scenario');
+      const scenarioId = scenarioSelect.value;
+      const scenarioName = impactScenarios[scenarioId];
+      const button = document.getElementById('run-impact-analysis');
+      const result = document.getElementById('impact-analysis-result');
+      if (!scenarioName) return;
+
+      button.disabled = true;
+      button.setAttribute('aria-busy', 'true');
+      button.textContent = 'Checking...';
+      result.setAttribute('role', 'status');
+      result.className = 'mt-5 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900';
+      result.textContent = `Checking the ${scenarioName} example. Please wait.`;
+      try {
+        const response = await fetch(`${API_BASE}/demo/impact/${scenarioId}`, {
+          method: 'GET',
+          headers: { Accept: 'application/json' }
+        });
+        let report;
+        try {
+          report = await response.json();
+        } catch {
+          throw new Error('The impact endpoint returned an invalid response.');
+        }
+        if (!response.ok) {
+          throw new Error('The example check could not be completed.');
+        }
+        if (
+          report.label !== 'SIMULATED INTERNAL CONTROLS — NOT ACTUAL BANK POLICIES'
+          || report.scenario_id !== scenarioId
+          || !Array.isArray(report.findings)
+          || !report.scope
+          || !report.proposed_rule
+          || !report.validation_result
+          || !Array.isArray(report.missing_evidence)
+          || !Array.isArray(report.uncertainty_warnings)
+        ) {
+          throw new Error('The impact endpoint returned an unexpected response.');
+        }
+        result.className = 'mt-5';
+        result.setAttribute('role', 'status');
+        result.replaceChildren(renderImpactReport(report));
+      } catch (error) {
+        result.className = 'mt-5 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-950';
+        const errorTitle = document.createElement('p');
+        errorTitle.className = 'font-semibold';
+        errorTitle.textContent = 'We could not run this example.';
+        const errorMessage = document.createElement('p');
+        errorMessage.className = 'mt-1';
+        errorMessage.textContent = error instanceof TypeError
+          ? 'Check that the local TraceRule service is running and that your connection is available.'
+          : 'Try running the check again. If it continues to fail, contact your support team.';
+        result.replaceChildren(errorTitle, errorMessage);
+        result.setAttribute('role', 'alert');
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Run check';
+        button.removeAttribute('aria-busy');
+      }
+    }
+
+    // Drag and drop
+    const uploadZone = document.getElementById('upload-zone');
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('dragover');
+    });
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('dragover');
+    });
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFile(files[0]);
+      }
+    });
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        handleFile(file);
+      }
+    }
+
+    function handleFile(file) {
+      selectedFile = file;
+      
+      // Update UI
+      document.getElementById('upload-icon').classList.add('hidden');
+      document.getElementById('upload-preview').classList.remove('hidden');
+      
+      // Set icon based on type
+      const icon = file.name.toLowerCase().endsWith('.pdf') 
+        ? '<i class="fas fa-file-pdf text-5xl text-red-500 mb-4"></i>'
+        : '<i class="fas fa-file-image text-5xl text-green-500 mb-4"></i>';
+      document.getElementById('upload-preview').innerHTML = icon + 
+        `<p class="text-gray-900 font-medium">${file.name}</p>
+         <p class="text-gray-400 text-sm mt-1">${formatFileSize(file.size)}</p>`;
+      
+      // Enable analyze button
+      document.getElementById('analyze-btn').disabled = false;
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    async function analyzeDocument() {
+      if (!selectedFile) return;
+
+      // Show loading
+      document.getElementById('upload-zone').classList.add('hidden');
+      document.getElementById('results').classList.add('hidden');
+      document.getElementById('error').classList.add('hidden');
+      document.getElementById('loading').classList.remove('hidden');
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      try {
+        const response = await fetch(`${API_BASE}/analyze`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || 'Analysis failed');
+        }
+
+        displayResults(data);
+      } catch (error) {
+        showError(error.message);
+      } finally {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('upload-zone').classList.remove('hidden');
+      }
+    }
+
+    function displayResults(data) {
+      // Update stats
+      document.getElementById('stat-pages').textContent = data.pages_processed;
+      document.getElementById('stat-chars').textContent = data.text_length.toLocaleString();
+      document.getElementById('stat-matches').textContent = data.total_matches;
+      document.getElementById('stat-time').textContent = data.processing_time + 's';
+
+      // Show results
+      document.getElementById('results').classList.remove('hidden');
+
+      const matchesList = document.getElementById('matches-list');
+      matchesList.innerHTML = '';
+
+      if (data.matches.length === 0) {
+        document.getElementById('no-matches').classList.remove('hidden');
+        return;
+      }
+
+      document.getElementById('no-matches').classList.add('hidden');
+
+      // Sort matches by score
+      const sortedMatches = data.matches.sort((a, b) => b.score - a.score);
+
+      sortedMatches.forEach((match, index) => {
+        const card = document.createElement('div');
+        card.className = 'match-card p-4 hover:bg-gray-50 cursor-pointer border-l-4 border-transparent transition-all';
+        
+        const keywords = match.matched_keywords || [];
+        const keywordsHtml = keywords.length > 0 
+          ? `<div class="flex flex-wrap gap-1 mt-2">
+               ${keywords.map(k => `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">${k}</span>`).join('')}
+             </div>` 
+          : '';
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-sm font-medium text-blue-600">${match.evidence_id}</span>
+                <span class="text-xs px-2 py-0.5 rounded ${match.matched_in === 'full_document' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'}">
+                  ${match.matched_in === 'full_document' ? 'Document' : match.matched_in.replace('_', ' ')}
+                </span>
+                ${match.page ? `<span class="text-xs text-gray-400">Page ${match.page}</span>` : ''}
+              </div>
+              <p class="text-sm text-gray-600 mt-2 line-clamp-3">${match.passage_preview}</p>
+              ${keywordsHtml}
+            </div>
+            <div class="text-right ml-4">
+              <span class="text-lg font-bold text-green-600">${Math.round(match.score)}</span>
+              <p class="text-xs text-gray-400">relevance</p>
+            </div>
+          </div>
+        `;
+        
+        matchesList.appendChild(card);
+      });
+    }
+
+    function showError(message) {
+      document.getElementById('error').classList.remove('hidden');
+      document.getElementById('error-message').textContent = 'Analysis Failed';
+      document.getElementById('error-detail').textContent = message;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# TraceRule AI — Python 3.11.9
+# Phase 1 PDF extraction
+PyMuPDF>=1.24.0,<2.0
+# Python 3.11 is supported by LangGraph; keep to the current compatible major line.
+langgraph>=1.2,<2.0

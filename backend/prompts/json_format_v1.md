@@ -1,0 +1,3 @@
+# JSON format instructions — v1
+
+Return a single JSON object with exactly these keys: `document_id`, `evidence_id`, `page`, `candidate_obligation`, `candidate_type`, `supporting_quotation`, `uncertainty`, `confidence`, `reasoning`, `requires_human_review`. Use a positive integer page, numeric confidence from 0 through 1, strings for text fields, `candidate_type` equal to `explicit_requirement`, `interpretation`, or `no_candidate`, and the literal boolean `true` for `requires_human_review`. Copy the exact contiguous source quote, preserving line breaks and Unicode characters. For `explicit_requirement`, candidate_obligation must be copied exactly from that quote. Do not include Markdown fences or surrounding commentary.
